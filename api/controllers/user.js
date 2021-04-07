@@ -16,26 +16,11 @@ exports.protectedPost = async function (args, res, next) {
 
   var User = mongoose.model('User');
   var user = new User({
+    sub: obj.sub,
     firstName: obj.firstName,
-    middleName: obj.middleName,
     lastName: obj.lastName,
     displayName: obj.displayName,
     email: obj.email,
-    org: obj.org,
-    orgName: obj.orgName,
-    title: obj.title,
-    phoneNumber: obj.phoneNumber,
-    salutation: obj.salutation,
-    department: obj.department,
-    faxNumber: obj.faxNumber,
-    cellPhoneNumber: obj.cellPhoneNumber,
-    address1: obj.address1,
-    address2: obj.address2,
-    city: obj.city,
-    province: obj.province,
-    country: obj.country,
-    postalCode: obj.postalCode,
-    notes: obj.notes,
     read: ['staff', 'sysadmin'],
     write: ['staff', 'sysadmin'],
     delete: ['staff', 'sysadmin']
@@ -98,3 +83,41 @@ exports.protectedPut = async function (args, res, next) {
     return Actions.sendResponse(res, 400, e);
   }
 }
+
+
+exports.protectedGet = async function (args, res, next) {
+  defaultLog.info('Getting user(s)');
+
+  var query = {}, sort = {}, skip = null, limit = null, count = false;
+  console.log('the string', args.swagger.params.userId.value)
+
+  // Build match query if on userID route
+  if (args.swagger.params.userId && args.swagger.params.userId.value) {
+    query = {"sub": args.swagger.params.userId.value};
+  } 
+
+  if (args.swagger.params.project && args.swagger.params.project.value) {
+    query = Utils.buildQuery("project", args.swagger.params.project.value, query);
+  }
+
+  // Set query type
+  _.assignIn(query, { "_schemaName": "User" });
+
+  try {
+    var data = await Utils.runDataQuery('User',
+      args.swagger.params.auth_payload.realm_access.roles,
+      query,
+      [], // Fields
+      null, // sort warmup
+      sort, // sort
+      skip, // skip
+      limit, // limit
+      count); // count
+    Utils.recordAction('Get', 'User', args.swagger.params.auth_payload.preferred_username, args.swagger.params.userId && args.swagger.params.userId.value ? args.swagger.params.userId.value : null);
+    defaultLog.info('Got user(s):', data);
+    return Actions.sendResponse(res, 200, data);
+  } catch (e) {
+    defaultLog.info('Error:', e);
+    return Actions.sendResponse(res, 400, e);
+  }
+};

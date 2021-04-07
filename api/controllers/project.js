@@ -186,6 +186,8 @@ exports.protectedGet = async function (args, res, next) {
 
   var commentPeriodPipeline = null;
 
+  console.log('The user sub', args.swagger.params.auth_payload.sub)
+
   // Admin's only get this
   if (args.swagger.params.fields.value) {
     args.swagger.params.fields.value.push('directoryStructure');

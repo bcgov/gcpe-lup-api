@@ -1,4 +1,5 @@
 module.exports = require('../models')('User', {
+    sub: { type: String, default: '' },
     firstName: { type: String, trim: true, default: '' },
     middleName: { type: String, trim: true, default: null },
     lastName: { type: String, trim: true, default: '' },

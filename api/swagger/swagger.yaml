@@ -582,9 +582,11 @@ definitions:
     example: displayName|roles
     #TODO: Fix enums
     enum: &userFields
+      - sub
       - displayName
       - firstName
       - lastName
+      - email
       - username
       - roles
 
@@ -3644,6 +3646,32 @@ paths:
       summary: "Pre-flight request"
       operationId: protectedOptions
       description: "Options on User GET Route"
+      parameters:
+        - name: userId
+          in: path
+          description: "ID of user to get"
+          required: true
+          type: string
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/UserObject"
+        "403":
+          description: "Access Denied"
+          schema:
+            $ref: "#/definitions/Error"
+    get:
+      tags:
+        - user
+      summary: "Get a user"
+      operationId: protectedGet
+      description: "Authenticated access to retreiving a user."
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - staff
+        - sysadmin
       parameters:
         - name: userId
           in: path
